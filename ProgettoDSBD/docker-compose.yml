@@ -1,0 +1,143 @@
+version: '2.4'
+
+x-mongo-secrets-pietanze: &mongo-credentials-pietanze
+  #MONGO_INITDB_DATABASE: admin
+  #MONGO_INITDB_ROOT_USERNAME: root
+  #MONGO_INITDB_ROOT_PASSWORD: toor
+  MONGODB_HOSTNAME: pietanze-service-db
+  MONGODB_PORT: 27017
+  MONGO_DB_NAME: mydbpietanze
+
+x-mongo-secrets-menu: &mongo-credentials-menu
+  #MONGO_INITDB_DATABASE: admin
+  #MONGO_INITDB_ROOT_USERNAME: root
+  #MONGO_INITDB_ROOT_PASSWORD: toor
+  MONGODB_HOSTNAME: menu-service-db
+  MONGODB_PORT: 27018
+  MONGO_DB_NAME: mydbpmenu
+
+x-mongo-secrets-ordini: &mongo-credentials-ordini
+  #MONGO_INITDB_DATABASE: admin
+  #MONGO_INITDB_ROOT_USERNAME: root
+  #MONGO_INITDB_ROOT_PASSWORD: toor
+  MONGODB_HOSTNAME: ordini-service-db
+  MONGODB_PORT: 27019
+  MONGO_DB_NAME: mydbordini
+
+x-kafka-env: &kafka-env
+  KAFKA_BROKER_ID: 1
+  KAFKA_ADVERTISED_PORT: 9092
+  BROKER_ID_COMMAND: "hostname | cut -d'-' -f2"
+  KAFKA_ZOOKEEPER_CONNECT: "zoo:2181"
+  KAFKA_LISTENERS: "PLAINTEXT://:9092"
+  #KAFKA_CREATE_TOPICS: "logging:20:1,pushnotifications:10:1,invoicing:10:1,mailing:10:1,userupdates:10:1,orderupdates:10:1"
+
+services:
+  pietanze-service-db:
+    image: mongo
+    restart: always
+    #environment:
+     #MONGO_INITDB_ROOT_USERNAME: root
+     #MONGO_INITDB_ROOT_PASSWORD: toor
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-db-data-pietanze:/data/db
+
+  pietanzemicroservice:
+    build:
+      context: .
+      dockerfile: PietanzeMicroservice/Dockerfile
+    ports:
+      - 8083:8080
+    restart: always
+    environment:
+      <<:  *mongo-credentials-pietanze
+      KAFKA_GROUP_ID: group-consumer-pietanze
+      KAFKA_ADDRESS: kafka:9092
+      KAFKA_TOPIC_ORDERS: "order"
+
+  menu-service-db:
+    image: mongo
+    command: mongod --port 27018
+    restart: always
+    #environment:
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: toor
+    ports:
+      - 27018:27018
+    volumes:
+      - mongo-db-data-menu:/data/db
+
+  menumicroservice:
+    build:
+      context: .
+      dockerfile: MenuMicroservice/Dockerfile
+    ports:
+      - 8081:8080
+    restart: always
+    environment:
+      <<:  *mongo-credentials-menu
+      KAFKA_GROUP_ID: group-consumer
+      KAFKA_ADDRESS: kafka:9092
+      KAFKA_TOPIC_ORDERS: "order"
+
+  ordini-service-db:
+    image: mongo
+    command: mongod --port 27019
+    restart: always
+    #environment:
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: toor
+    ports:
+      - 27019:27019
+    volumes:
+      - mongo-db-data-ordini:/data/db
+
+  ordinimicroservice:
+    build:
+      context: .
+      dockerfile: OrdiniMicroservice/Dockerfile
+    ports:
+      - 8082:8080
+    restart: always
+    environment:
+      <<:  *mongo-credentials-ordini
+      KAFKA_GROUP_ID: group-consumer-ordini
+      KAFKA_ADDRESS: kafka:9092
+      KAFKA_TOPIC_ORDERS: "order"
+
+  #api_gateway:
+   # build:
+    #  context: .
+     # dockerfile: APIGateway/Dockerfile
+   # ports:
+    #  - 8080:8080
+   # restart: always
+
+  #fake_producer:
+  #  build:
+  #    context: .
+  #    dockerfile: fake_producer/Dockerfile
+  #  ports:
+  #    - 8089:8080
+  #  restart: always
+    #command: tail -f /dev/null
+
+  zoo:
+    image: library/zookeeper:3.4.13
+    environment:
+      ZOO_MY_ID: 1
+    restart: always
+
+  kafka:
+    environment: *kafka-env
+    image: wurstmeister/kafka:2.11-2.0.0
+    restart: always
+    ports:
+      - 9092:9092
+
+volumes:
+  mongo-db-data-pietanze:
+  mongo-db-data-menu:
+  mongo-db-data-ordini:
