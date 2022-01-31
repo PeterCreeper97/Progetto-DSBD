@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pietanze-service-env-file
+data:
+  KAFKA_GROUP_ID: group-consumer-pietanze
+  KAFKA_ADDRESS: kafkabroker:9092
+  KAFKA_TOPIC_ORDERS: "order"
+  KAFKA_TOPIC_MENU: "menu"
+  MONGODB_HOSTNAME: pietanze-service-db
+  MONGODB_PORT: "27017"
+  MONGO_DB_NAME: mydbpietanze

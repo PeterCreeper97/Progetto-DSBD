@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-service-db
+spec:
+  selector:
+    matchLabels:
+      app: menu-service-db
+  template:
+    metadata:
+      labels:
+        app: menu-service-db
+    spec:
+      containers:
+      - name: menu-service-db
+        image: mongo:latest
+        ports:
+          - containerPort: 27017
+        volumeMounts:
+          - mountPath: /data/db
+            name: mongo-db-data-menu
+      volumes:
+      - name: mongo-db-data-menu
+        persistentVolumeClaim:
+          claimName: mongo-db-data-menu
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-microservice
+spec:
+  selector:
+    matchLabels:
+      app: menu-microservice
+  template:
+    metadata:
+      labels:
+        app: menu-microservice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+        - name: menu-microservice
+          image: pierluca97/menurepo:latest #ire97/orders_management:v11 push immagine x forza
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: menu-service-env-file

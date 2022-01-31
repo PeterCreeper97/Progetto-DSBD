@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafkabroker
+  labels:
+    app: kafkabroker
+spec:
+  ports:
+    - port: 9092
+      name: kafkabroker-port
+    - port: 9999
+      name: kafkabroker-monitor
+  selector:
+    app: kafkabroker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: zookeeper-service
+  name: zookeeper-service
+spec:
+  ports:
+    - name: zookeeper-port
+      port: 2181
+      targetPort: 2181
+  selector:
+    app: zookeeper
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: menu-microservice
+spec:
+  ports:
+    - protocol: TCP
+      name: http-traffic
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: menu-microservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: menu-service-db
+spec:
+  ports:
+    - port: 27017
+  selector:
+    app: menu-service-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordini-microservice
+spec:
+  ports:
+    - protocol: TCP
+      name: http-traffic
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: ordini-microservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordini-service-db
+spec:
+  ports:
+    - port: 27017
+  selector:
+    app: ordini-service-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pietanze-microservice
+spec:
+  ports:
+    - protocol: TCP
+      name: http-traffic
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: pietanze-microservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pietanze-service-db
+spec:
+  ports:
+    - port: 27017
+  selector:
+    app: pietanze-service-db
+

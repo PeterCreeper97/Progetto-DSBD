@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orders-service-env-file
+data:
+  KAFKA_GROUP_ID: group-consumer-ordini
+  KAFKA_ADDRESS: kafkabroker:9092
+  KAFKA_TOPIC_ORDERS: "order"
+  MONGODB_HOSTNAME: ordini-service-db
+  MONGODB_PORT: "27017"
+  MONGO_DB_NAME: mydbordini

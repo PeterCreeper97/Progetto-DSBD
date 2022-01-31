@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordini-service-db
+spec:
+  selector:
+    matchLabels:
+      app: ordini-service-db
+  template:
+    metadata:
+      labels:
+        app: ordini-service-db
+    spec:
+      containers:
+      - name: ordini-service-db
+        image: mongo:latest
+        ports:
+          - containerPort: 27017
+        volumeMounts:
+          - mountPath: /data/db
+            name: mongo-db-data-ordini
+      volumes:
+      - name: mongo-db-data-ordini
+        persistentVolumeClaim:
+          claimName: mongo-db-data-ordini
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordini-microservice
+spec:
+  selector:
+    matchLabels:
+      app: ordini-microservice
+  template:
+    metadata:
+      labels:
+        app: ordini-microservice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+      - name: ordini-microservice
+        image: pierluca97/ordinirepo:latest #ire97/orders_management:v11 push immagine x forza
+        ports:
+        - containerPort: 8080
+        envFrom:
+          - configMapRef:
+              name: orders-service-env-file

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: menu-service-env-file
+data:
+  KAFKA_GROUP_ID: group-consumer-menu
+  KAFKA_ADDRESS: kafkabroker:9092
+  KAFKA_TOPIC_MENU: "menu"
+  MONGODB_HOSTNAME: menu-service-db
+  MONGODB_PORT: "27017"
+  MONGO_DB_NAME: mydbpmenu

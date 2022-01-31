@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pietanze-service-db
+spec:
+  selector:
+    matchLabels:
+      app: pietanze-service-db
+  template:
+    metadata:
+      labels:
+        app: pietanze-service-db
+    spec:
+      containers:
+        - name: pietanze-service-db
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-db-data-pietanze
+      volumes:
+        - name: mongo-db-data-pietanze
+          persistentVolumeClaim:
+            claimName: mongo-db-data-pietanze
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pietanze-microservice
+spec:
+  selector:
+    matchLabels:
+      app: pietanze-microservice
+  template:
+    metadata:
+      labels:
+        app: pietanze-microservice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+      - name: pietanze-microservice
+        image: pierluca97/pietanzerepo:latest #ire97/orders_management:v11 push immagine x forza
+        ports:
+          - containerPort: 8080
+        envFrom:
+          - configMapRef:
+              name: pietanze-service-env-file
