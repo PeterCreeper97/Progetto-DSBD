@@ -5,20 +5,20 @@ Luca Occhipinti:  1000026003
 
 -----------------------------------------------------
 
-******PER DEPLOYMENT CON DOCKER*******
+****PER DEPLOYMENT CON DOCKER****
 
-DOCKER-COMPOSE UP ALL'INTERNO DELLA CARTELLA DI PROGETTO
+docker-compose up ALL'INTERNO DELLA CARTELLA DI PROGETTO
 
-*******PER DEPLOYMENT CON KUBERNETES********
+****PER DEPLOYMENT CON KUBERNETES*****
 
-MINIKUBE START
+minikube start
 
 PER LA PRIMA CONFIGURAZIONE E' NECESSARIO ABILITARE L'INGRESS:
 
     minikube addons enable ingress
-    echo "$(minikube ip) clustera.dsbd2021.it" | sudo tee -a /etc/hosts
+    echo "$(minikube ip) cluster.dsbd.it" | sudo tee -a /etc/hosts
     kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
 
 E SUCCESSIVAMENTE:
 
-KUBECTL APPLY -F k8s
+kubectl apply -f k8s
